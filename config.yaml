@@ -1,4 +1,5 @@
 baseURL: https://gents-from-britain.netlify.app
+title: Gents From Britain
 disableKinds: 
 - taxonomy
 - term
