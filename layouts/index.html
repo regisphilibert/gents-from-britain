@@ -1,0 +1,49 @@
+{{ define "main" }}
+  <h2>Gents from Britain</h2>
+{{ $gents_pages := where site.RegularPages "Type" "gent" }}
+{{ $gents := apply $gents_pages "partial" "transform_gent" "." }}
+{{ range $gents }}
+  <details>
+    <summary>{{ .fullname }}</summary>
+    <dl>
+      {{ range $key, $value := . }}
+      <dt>{{ $key }}</dt>
+      <dd>
+        {{ if reflect.IsSlice . }}
+        <ul>
+          {{ range . }}
+          <li>{{ . }}</li>
+          {{ end }}
+        </ul>
+      {{ else }}
+        {{ . }}
+      {{ end }}
+      </dd>
+    </dl>
+  {{ end }}
+  </details>
+{{ end }}
+
+{{ range slice 
+  
+  (dict
+    "title" "All gents playing the Guitar"
+    "list" (where $gents ".instruments.list" "intersect" (slice "Guitar"))
+  )
+  (dict
+    "title" "Gents sorted by number of instruments"
+    "list" (sort $gents ".instruments.number")
+  )
+  (dict
+    "title" "Gents sorted by number of songs"
+    "list" (sort $gents ".instruments.number")
+  )
+}}
+  <h2>{{ .title }}</h2>
+  <ul>
+    {{ range .list }}
+      <li>{{ .fullname }}</li>
+    {{ end }}
+  </ul>
+{{ end }}
+{{ end }}

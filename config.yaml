@@ -1,0 +1,10 @@
+baseURL: https://gents-from-britain.netlify.app
+disableKinds: 
+- taxonomy
+- term
+- RSS
+- sitemap
+- robotsTXT
+- '404'
+ignoreErrors:
+- error-disable-taxonomy

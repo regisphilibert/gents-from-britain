@@ -1,0 +1,64 @@
+{{ $s := newScratch }}
+{{ $s.Set "gent" dict }}
+
+{{/* Name */}}
+
+{{ $s.SetInMap "gent" "fullname" .Title }}
+
+{{ with split .Title " " }}
+  {{ if gt (len .) 1 }}
+    {{ with first 1 . }}
+      {{ $s.SetInMap "gent" "firstname" (index . 0) }}
+    {{ end }}
+    {{ with last 1 . }}
+      {{ $s.SetInMap "gent" "lastname" (index . 0) }}
+    {{ end }}
+  {{ else }}
+    {{ $s.SetInMap "gent" "firstname" (index . 0) }}
+  {{ end }}
+{{ end }}
+
+{{/* City */}}
+
+{{ $s.SetInMap "gent" "city" (default "Liverpool" .Params.city) }}
+
+{{/* Birthdate and age */}}
+
+{{ with .Date }}
+  {{ $s.SetInMap "gent" "birthdate" . }}
+{{ end }}
+
+{{ $birthday := .Date }}
+
+{{ with sub now.Year .Date.Year }}
+  {{ $s.SetInMap "gent" "age" . }}
+{{ end }}
+
+{{/* Instruments */}}
+
+{{ with .Params.instruments }}
+  {{ $instruments := dict
+    "string_rep" (delimit . ", " "and")
+    "number" (len .)
+    "list" .
+  }}
+  {{ $s.SetInMap "gent" "instruments" $instruments }}
+{{ end }}
+
+{{/* Songs */}}
+
+{{ with resources.GetRemote "https://ya-beatles-api.netlify.app/songs" }}
+  {{ with .Content | unmarshal }}
+    {{ $songs := slice }}
+    {{ with where . "songwriters" "intersect" (slice $.Title) }}
+      {{ range . }}
+        {{ $songs = $songs | append .name }}
+      {{ end }}
+    {{ end }}
+    {{ with $songs }}
+      {{ $s.SetInMap "gent" "songs" . }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ return $s.Get "gent" }}
